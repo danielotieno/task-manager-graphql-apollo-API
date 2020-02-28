@@ -20,6 +20,7 @@ const typeDefs = gql`
   type Query {
     greetings: String
     tasks: [Task!]
+    task(id: ID!): Task
   }
 
   type User {
@@ -41,6 +42,7 @@ const resolvers = {
   Query: {
     greetings: () => 'Hello Danny Boy',
     tasks: () => tasks,
+    task: (_, { id }) => tasks.find(task => task.id === id),
   },
 
   Task: {
