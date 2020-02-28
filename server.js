@@ -2,6 +2,8 @@ import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
 import cors from 'cors';
 import dotEnv from 'dotenv';
+import uuid from 'uuid';
+
 import { tasks, users } from './data';
 
 // env config
@@ -22,6 +24,16 @@ const typeDefs = gql`
     task(id: ID!): Task
     users: [User!]
     user(id: ID!): User
+  }
+
+  input createTaskInput {
+    name: String!
+    completed: Boolean!
+    userId: ID!
+  }
+
+  type Mutation {
+    createTask(input: createTaskInput!): Task
   }
 
   type User {
@@ -45,6 +57,14 @@ const resolvers = {
     task: (_, { id }) => tasks.find(task => task.id === id),
     users: () => users,
     user: (_, { id }) => users.find(user => user.id === id),
+  },
+
+  Mutation: {
+    createTask: (_, { input }) => {
+      const task = { ...input, id: uuid.v4() };
+      tasks.push(task);
+      return task;
+    },
   },
 
   Task: {
