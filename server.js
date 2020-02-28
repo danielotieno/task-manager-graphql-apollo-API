@@ -1,7 +1,7 @@
-import express from "express";
-import { ApolloServer, gql } from "apollo-server-express";
-import cors from "cors";
-import dotEnv from "dotenv";
+import express from 'express';
+import { ApolloServer, gql } from 'apollo-server-express';
+import cors from 'cors';
+import dotEnv from 'dotenv';
 
 // env config
 dotEnv.config();
@@ -15,25 +15,43 @@ app.use(cors());
 // body parser middleware
 app.use(express.json({ extended: false }));
 
-const typeDefs = gql `
+const typeDefs = gql`
   type Query {
-    grettings: String
+    greetings: String
+  }
+
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    tasks: [Task!]
+  }
+
+  type Task {
+    id: ID!
+    name: String!
+    completed: Boolean!
+    user: User!
   }
 `;
 
-const resolvers = {};
+const resolvers = {
+  Query: {
+    greetings: () => 'Hello Danny Boy',
+  },
+};
 
 const apolloServer = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
 });
 
-apolloServer.applyMiddleware({ app, path: "/graphql" });
+apolloServer.applyMiddleware({ app, path: '/graphql' });
 
 const PORT = process.env.PORT || 3000;
 
-app.use("/", (req, res, next) => {
-  res.send({ message: "Hello" });
+app.use('/', (req, res, next) => {
+  res.send({ message: 'Hello' });
 });
 
 app.listen(PORT, () => {
