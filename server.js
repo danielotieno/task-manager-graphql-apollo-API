@@ -2,7 +2,7 @@ import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
 import cors from 'cors';
 import dotEnv from 'dotenv';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 import { tasks, users } from './data';
 
@@ -61,7 +61,7 @@ const resolvers = {
 
   Mutation: {
     createTask: (_, { input }) => {
-      const task = { ...input, id: uuid.v4() };
+      const task = { ...input, id: uuidv4() };
       tasks.push(task);
       return task;
     },
