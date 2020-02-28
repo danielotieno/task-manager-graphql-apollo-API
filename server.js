@@ -2,6 +2,7 @@ import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
 import cors from 'cors';
 import dotEnv from 'dotenv';
+import { tasks, users } from './data';
 
 // env config
 dotEnv.config();
@@ -18,6 +19,7 @@ app.use(express.json({ extended: false }));
 const typeDefs = gql`
   type Query {
     greetings: String
+    tasks: [Task!]
   }
 
   type User {
@@ -38,6 +40,11 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     greetings: () => 'Hello Danny Boy',
+    tasks: () => tasks,
+  },
+
+  Task: {
+    user: ({ userId }) => users.find(user => user.id === userId),
   },
 };
 
