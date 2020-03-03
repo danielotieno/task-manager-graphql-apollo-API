@@ -2,9 +2,8 @@ import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
 import cors from 'cors';
 import dotEnv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
 
-import { tasks, users } from './data';
+import resolvers from './resolvers';
 
 // env config
 dotEnv.config();
@@ -50,31 +49,6 @@ const typeDefs = gql`
     user: User!
   }
 `;
-
-const resolvers = {
-  Query: {
-    tasks: () => tasks,
-    task: (_, { id }) => tasks.find(task => task.id === id),
-    users: () => users,
-    user: (_, { id }) => users.find(user => user.id === id),
-  },
-
-  Mutation: {
-    createTask: (_, { input }) => {
-      const task = { ...input, id: uuidv4() };
-      tasks.push(task);
-      return task;
-    },
-  },
-
-  Task: {
-    user: ({ userId }) => users.find(user => user.id === userId),
-  },
-
-  User: {
-    tasks: ({ id }) => tasks.filter(task => task.userId === id),
-  },
-};
 
 const apolloServer = new ApolloServer({
   typeDefs,
