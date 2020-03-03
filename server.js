@@ -3,6 +3,7 @@ import { ApolloServer, gql } from 'apollo-server-express';
 import cors from 'cors';
 import dotEnv from 'dotenv';
 
+import typeDefs from './typeDefs';
 import resolvers from './resolvers';
 
 // env config
@@ -16,39 +17,6 @@ app.use(cors());
 
 // body parser middleware
 app.use(express.json({ extended: false }));
-
-const typeDefs = gql`
-  type Query {
-    tasks: [Task!]
-    task(id: ID!): Task
-    users: [User!]
-    user(id: ID!): User
-  }
-
-  input createTaskInput {
-    name: String!
-    completed: Boolean!
-    userId: ID!
-  }
-
-  type Mutation {
-    createTask(input: createTaskInput!): Task
-  }
-
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    tasks: [Task!]
-  }
-
-  type Task {
-    id: ID!
-    name: String!
-    completed: Boolean!
-    user: User!
-  }
-`;
 
 const apolloServer = new ApolloServer({
   typeDefs,
