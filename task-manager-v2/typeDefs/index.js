@@ -4,6 +4,8 @@ import userTypeDef from './user';
 import taskTypeDef from './task';
 
 const typeDefs = gql`
+  scalar Date
+
   type Query {
     _: String
   }
