@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 import { users, tasks } from '../data';
 import User from '../database/models/user';
@@ -24,6 +25,27 @@ module.exports.userResolver = {
         console.log(error);
         throw error;
       }
+    },
+
+    login: async (_, { input }) => {
+      try {
+        const user = await User.findOne({ email: input.email });
+        if (!user) {
+          throw new Error('Wrong Credentials');
+        }
+        const isPasswordValid = await bcrypt.compare(
+          input.password,
+          user.password,
+        );
+        if (!isPasswordValid) {
+          throw new Error('Wrong Credentials');
+        }
+        const secret = process.env.JWT_SECRETE || 'myscretekey';
+        const token = jwt.sign({ email: user.email }, secret, {
+          expiresIn: '1d',
+        });
+        return { token };
+      } catch (error) {}
     },
   },
 

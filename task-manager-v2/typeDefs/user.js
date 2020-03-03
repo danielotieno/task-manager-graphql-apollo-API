@@ -8,6 +8,16 @@ const userTypeDef = gql`
 
   extend type Mutation {
     createUser(input: createUserInput): User
+    login(input: loginInput): Token
+  }
+
+  input loginInput {
+    email: String!
+    password: String!
+  }
+
+  type Token {
+    token: String!
   }
 
   input createUserInput {
