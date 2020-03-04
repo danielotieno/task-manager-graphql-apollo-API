@@ -9,7 +9,6 @@ const taskTypeDef = gql`
   input createTaskInput {
     name: String!
     completed: Boolean!
-    userId: ID!
   }
 
   extend type Mutation {
@@ -21,6 +20,8 @@ const taskTypeDef = gql`
     name: String!
     completed: Boolean!
     user: User!
+    createdAt: Date!
+    updatedAt: Date!
   }
 `;
 
