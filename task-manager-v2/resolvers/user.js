@@ -2,16 +2,24 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { combineResolvers } from 'graphql-resolvers';
 
-import { users, tasks } from '../data';
+import Task from '../database/models/task';
 import User from '../database/models/user';
 import isAuthenticated from './middleware';
 
 module.exports.userResolver = {
   Query: {
-    users: () => users,
-    user: combineResolvers(isAuthenticated, (_, { id }) =>
-      users.find(user => user.id === id),
-    ),
+    user: combineResolvers(isAuthenticated, async (_, _, { email }) => {
+      try {
+        const user = await User.findOne({ email });
+        if (!user) {
+          throw new Error('User not faound');
+        }
+        return user;
+      } catch (error) {
+        console.log(error.message);
+        throw error.message;
+      }
+    }),
   },
 
   Mutation: {
@@ -57,6 +65,14 @@ module.exports.userResolver = {
   },
 
   User: {
-    tasks: ({ id }) => tasks.filter(task => task.userId === id),
+    tasks: async ({ id }) => {
+      try {
+        const tasks = await Task.find({ user: id });
+        return tasks;
+      } catch (error) {
+        console.log(error.message);
+        throw error.message;
+      }
+    },
   },
 };
