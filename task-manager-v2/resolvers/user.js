@@ -1,13 +1,17 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { combineResolvers } from 'graphql-resolvers';
 
 import { users, tasks } from '../data';
 import User from '../database/models/user';
+import isAuthenticated from './middleware';
 
 module.exports.userResolver = {
   Query: {
     users: () => users,
-    user: (_, { id }) => users.find(user => user.id === id),
+    user: combineResolvers(isAuthenticated, (_, { id }) =>
+      users.find(user => user.id === id),
+    ),
   },
 
   Mutation: {
