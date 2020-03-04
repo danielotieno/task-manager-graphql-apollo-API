@@ -22,8 +22,8 @@ module.exports.userResolver = {
         const result = await newUser.save();
         return result;
       } catch (error) {
-        console.log(error);
-        throw error;
+        console.log(error.message);
+        throw error.message;
       }
     },
 
@@ -45,7 +45,10 @@ module.exports.userResolver = {
           expiresIn: '1d',
         });
         return { token };
-      } catch (error) {}
+      } catch (error) {
+        console.log(error.message);
+        throw error.message;
+      }
     },
   },
 

@@ -7,6 +7,7 @@ import typeDefs from './typeDefs';
 import resolvers from './resolvers';
 
 import connection from './database/util';
+import verifyUser from './helper/context';
 
 // env config
 dotEnv.config();
@@ -26,6 +27,12 @@ app.use(express.json({ extended: false }));
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
+  context: async ({ req }) => {
+    await verifyUser(req);
+    return {
+      email: req.email,
+    };
+  },
 });
 
 apolloServer.applyMiddleware({ app, path: '/graphql' });
