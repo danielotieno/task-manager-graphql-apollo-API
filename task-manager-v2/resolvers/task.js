@@ -3,12 +3,31 @@ import { combineResolvers } from 'graphql-resolvers';
 
 import Task from '../database/models/task';
 import User from '../database/models/user';
-import { isAuthenticated } from './middleware';
+import { isAuthenticated, isTaskOwner } from './middleware';
 
 module.exports.taskResolver = {
   Query: {
-    tasks: () => tasks,
-    task: (_, { id }) => tasks.find(task => task.id === id),
+    tasks: combineResolvers(
+      isAuthenticated,
+      async (_, __, { loggedInUser }) => {
+        try {
+          const tasks = await Task.find({ user: loggedInUser });
+          return tasks;
+        } catch (error) {
+          console.log(error.message);
+          throw error.message;
+        }
+      },
+    ),
+    task: combineResolvers(isAuthenticated, isTaskOwner, async (_, { id }) => {
+      try {
+        const task = await Task.findById(id);
+        return task;
+      } catch (error) {
+        console.log(error.message);
+        throw error.message;
+      }
+    }),
   },
 
   Mutation: {
@@ -31,6 +50,14 @@ module.exports.taskResolver = {
   },
 
   Task: {
-    user: ({ userId }) => users.find(user => user.id === userId),
+    user: async parent => {
+      try {
+        const user = await User.findById(parent.user);
+        return user;
+      } catch (error) {
+        console.log(error.message);
+        throw error.message;
+      }
+    },
   },
 };

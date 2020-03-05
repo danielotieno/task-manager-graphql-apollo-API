@@ -13,4 +13,11 @@ const connection = async () => {
   }
 };
 
-export default connection;
+const isValidObjectId = id => {
+  mongoose.Types.ObjectId.isValid(id);
+};
+
+export default {
+  connection,
+  isValidObjectId,
+};
