@@ -64,6 +64,24 @@ module.exports.taskResolver = {
         }
       },
     ),
+
+    deleteTask: combineResolvers(
+      isAuthenticated,
+      isTaskOwner,
+      async (_, { id }, { loggedInUser }) => {
+        try {
+          const task = await Task.findByIdAndDelete(id);
+          await User.updateOne(
+            { _id: loggedInUser },
+            { $pull: { tasks: task.id } },
+          );
+          return task;
+        } catch (error) {
+          console.log(error.message);
+          throw error.message;
+        }
+      },
+    ),
   },
 
   Task: {

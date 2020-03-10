@@ -19,6 +19,7 @@ const taskTypeDef = gql`
   extend type Mutation {
     createTask(input: createTaskInput!): Task
     updateTask(id: ID!, input: updateTaskInput!): Task
+    deleteTask(id: ID!): Task
   }
 
   type Task {
