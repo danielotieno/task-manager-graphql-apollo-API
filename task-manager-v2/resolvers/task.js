@@ -1,21 +1,36 @@
-import { v4 as uuidv4 } from 'uuid';
 import { combineResolvers } from 'graphql-resolvers';
 
 import Task from '../database/models/task';
 import User from '../database/models/user';
 import { isAuthenticated, isTaskOwner } from './middleware';
+import { stringToBase64, base64ToString } from '../helper';
 
 module.exports.taskResolver = {
   Query: {
     tasks: combineResolvers(
       isAuthenticated,
-      async (_, { skip = 0, limit = 5 }, { loggedInUser }) => {
+      async (_, { cursor, limit = 5 }, { loggedInUser }) => {
         try {
-          const tasks = await Task.find({ user: loggedInUser })
+          const query = { user: loggedInUser };
+          if (cursor) {
+            query['_id'] = {
+              $lt: base64ToString(cursor),
+            };
+          }
+          let tasks = await Task.find(query)
             .sort({ _id: -1 })
-            .skip(skip)
-            .limit(limit);
-          return tasks;
+            .limit(limit + 1);
+          const hasNextPage = tasks.length > limit;
+          tasks = hasNextPage ? tasks.slice(0, -1) : tasks;
+          return {
+            taskFeed: tasks,
+            pageInfo: {
+              nextPageCursor: hasNextPage
+                ? stringToBase64(tasks[tasks.length - 1])
+                : null,
+              hasNextPage,
+            },
+          };
         } catch (error) {
           console.log(error.message);
           throw error.message;
