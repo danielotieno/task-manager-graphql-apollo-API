@@ -9,9 +9,12 @@ module.exports.taskResolver = {
   Query: {
     tasks: combineResolvers(
       isAuthenticated,
-      async (_, __, { loggedInUser }) => {
+      async (_, { skip = 0, limit = 5 }, { loggedInUser }) => {
         try {
-          const tasks = await Task.find({ user: loggedInUser });
+          const tasks = await Task.find({ user: loggedInUser })
+            .sort({ _id: -1 })
+            .skip(skip)
+            .limit(limit);
           return tasks;
         } catch (error) {
           console.log(error.message);

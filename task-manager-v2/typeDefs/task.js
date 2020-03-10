@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express';
 
 const taskTypeDef = gql`
   extend type Query {
-    tasks: [Task!]
+    tasks(skip: Int, limit: Int): [Task!]
     task(id: ID!): Task
   }
 
