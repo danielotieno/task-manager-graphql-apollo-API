@@ -2,12 +2,14 @@ import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
 import cors from 'cors';
 import dotEnv from 'dotenv';
+import Dataloader from 'dataloader';
 
 import typeDefs from './typeDefs';
 import resolvers from './resolvers';
 
 import connection from './database/util';
-import verifyUser from './helper/context';
+import { verifyUser } from './helper/context';
+import loaders from './loaders';
 
 // env config
 dotEnv.config();
@@ -32,6 +34,9 @@ const apolloServer = new ApolloServer({
     return {
       email: req.email,
       loggedInUser: req.loggedInUser,
+      loaders: {
+        user: new Dataloader(keys => loaders.batchUsers(keys)),
+      },
     };
   },
 });
