@@ -29,16 +29,19 @@ app.use(express.json({ extended: false }));
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req }) => {
+  context: async ({ req, connection }) => {
+    const contextObj = {};
+
+    if(req){
     await verifyUser(req);
-    return {
-      email: req.email,
-      loggedInUser: req.loggedInUser,
-      loaders: {
+    contextObj.email = req.email,
+    contextObj.loggedInUser = req.loggedInUser,
+    }
+    contextObj.loaders = {
         user: new Dataloader(keys => loaders.batchUsers(keys)),
-      },
-    };
-  },
+      }
+      return contextObj
+  }
 });
 
 apolloServer.applyMiddleware({ app, path: '/graphql' });
@@ -49,7 +52,9 @@ app.use('/', (req, res, next) => {
   res.send({ message: 'Hello' });
 });
 
-app.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
   console.log(`Server listening at Port: ${PORT}`);
   console.log(`Graphql Endpoint: ${apolloServer.graphqlPath}`);
 });
+
+apolloServer.installSubscriptionHandlers(httpServer)

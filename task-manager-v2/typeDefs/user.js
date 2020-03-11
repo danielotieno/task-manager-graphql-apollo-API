@@ -33,6 +33,10 @@ const userTypeDef = gql`
     createdAt: Date!
     updatedAt: Date!
   }
+
+  extend type Subscription {
+    userCreated: User
+  }
 `;
 
 export default userTypeDef;

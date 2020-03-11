@@ -5,6 +5,8 @@ import { combineResolvers } from 'graphql-resolvers';
 import Task from '../database/models/task';
 import User from '../database/models/user';
 import isAuthenticated from './middleware';
+import PubSub from '../subscription';
+import { userEvents } from '../subscription/events';
 
 module.exports.userResolver = {
   Query: {
@@ -32,6 +34,7 @@ module.exports.userResolver = {
         const hashedPassword = await bcrypt.hash(input.password, 12);
         const newUser = new User({ ...input, password: hashedPassword });
         const result = await newUser.save();
+        PubSub.publish(userEvents.USER_CREATED, { userEvents: result });
         return result;
       } catch (error) {
         console.log(error.message);
@@ -61,6 +64,12 @@ module.exports.userResolver = {
         console.log(error.message);
         throw error.message;
       }
+    },
+  },
+
+  Subscription: {
+    userCreated: {
+      subscribe: () => PubSub.asyncIterator(userEvents.USER_CREATED),
     },
   },
 
